@@ -71,10 +71,7 @@ public:
 
 private:
 	const loggr* m_logger;
-	
 	bool m_active = false;
-
 	std::size_t m_seq_index = 0;
-
 	std::chrono::steady_clock::time_point m_last_update_time;
 };
