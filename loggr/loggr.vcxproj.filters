@@ -32,5 +32,8 @@
     <ClInclude Include="loggr.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="spinner.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

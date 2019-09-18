@@ -39,17 +39,23 @@ public:
 	}
 
 	// CONSOLE LOGGING FUNCTIONS
-	inline void log(std::string_view message)
+	template <class...T>
+	inline void log_raw(T... arguments) const
+	{
+		fmt::print(arguments...);
+	}
+
+	inline void log(std::string_view message) const
 	{
 		fmt::print("[+] {}\n", message);
 	}
-	inline void log_error(std::string_view message)
+	inline void log_error(std::string_view message) const
 	{
 		fmt::print("[!] {}\n", message);
 	}
 
 	template <bool hex = false, class T>
-	inline void log(std::string_view variable_name, const T& value)
+	inline void log(std::string_view variable_name, const T& value) const
 	{
 		constexpr auto format_string = hex ? 
 			"[=] {:<15} {:X}\n" :
@@ -59,19 +65,19 @@ public:
 	}
 
 	template <std::size_t indentation>
-	inline void log_error_indented(std::string_view message)
+	inline void log_error_indented(std::string_view message) const
 	{
 		fmt::print("[!] {:<{}} {}\n", ' ', indentation, message);
 	}
 
 	template <std::size_t indentation>
-	inline void log_indented(std::string_view message)
+	inline void log_indented(std::string_view message) const
 	{
 		fmt::print("[+] {:<{}} {}\n", ' ', indentation, message);
 	}
 
 	template <std::size_t indentation, bool hex = false, class T>
-	inline void log_indented(std::string_view variable_name, const T& value)
+	inline void log_indented(std::string_view variable_name, const T& value) const
 	{
 		constexpr auto format_string = hex ?
 			"[=] {:<{}} {:.<15} {:02X}\n" :
@@ -82,7 +88,7 @@ public:
 
 
 	// CONSOLE MODIFICATION FUNCTIONS
-	inline COORD get_position()
+	inline COORD get_position() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO info;
 		if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info))
@@ -93,7 +99,7 @@ public:
 
 		return info.dwCursorPosition;
 	}
-	inline void set_position(const COORD cursor)
+	inline void set_position(const COORD cursor) const
 	{
 		if (!SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor))
 		{
@@ -101,10 +107,12 @@ public:
 
 		}
 	}
-	inline void clear_line()
+	inline void clear_line() const
 	{
 		// GET CURSOR POSITION
 		auto position = this->get_position();
+
+
 		position.X = 0;
 
 		// CLEAR LINE
@@ -116,64 +124,7 @@ public:
 		set_position(position);
 	}
 
-	
-	// SPINNER
-
-	static constexpr std::uint8_t SPINNER_SEQUENCE[] = 
-	{
-		'|', '/', '-', '\\'
-	};
-
-	inline void start_spinner()
-	{
-		if (m_spinner_active)
-		{
-			// ??
-			return;
-		}
-
-		m_spinner_active = true;
-	}
-	inline void update_spinner()
-	{
-		using clock_t = std::chrono::high_resolution_clock;
-
-		// UPDATE SPINNER EVERY x MS
-		constexpr auto update_time = 150;
-
-		bool update = true;
-
-		if (!update)
-		{
-			return;
-		}
-
-		// UPDATE THE SPINNER CHARACTER
-		this->clear_line();
-		fmt::print("[{}]", SPINNER_SEQUENCE[m_spinner_index]);
-
-		// INCREMENT AND WRAP
-		m_spinner_index++;
-		m_spinner_index %= sizeof(SPINNER_SEQUENCE);
-
-
-	}
-	inline void stop_spinner()
-	{
-		if (!m_spinner_active)
-		{
-			// ??
-			return;
-		}
-
-
-		this->clear_line();
-		m_spinner_active = false;
-	}
-
 private:
 	bool m_did_allocate_console = false;
-	bool m_spinner_active = false;
-	std::uint8_t m_spinner_index = 0;
 
 };
